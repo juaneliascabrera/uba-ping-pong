@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import path from "path";
 dotenv.config({path: path.resolve(__dirname, "..", ".env")});
 const app = express();
+app.use(express.json());
 const PORT = 3000;
 
 // Exportar variables de entorno ejecuntado el .sh o .bat
@@ -19,10 +20,25 @@ pool.on("connect", () => {
 	console.log("Connected to Ping Pong");
 });
 
+const schema = "ping_pong_sport"
 
+app.post("/matches", async (req: Request, res: Response) => {
+	const player_1: string = req.body.player_1;
+	const player_2: string = req.body.player_2;
+	const columns = 'player_1, player_2';	
 
-app.get("/", async (req: Request, res: Response) => {
-  const matches =  await pool.query('SELECT * FROM ping_pong_sport.matches');
+	await pool.query(`INSERT INTO ${schema}.matches (${columns}) VALUES ('${player_1}', '${player_2}')`);
+	return res.status(201).json({message: "todo zarpado"});
+});
+app.get("/matches/:match_id", async (req: Request, res: Response) => {
+  const match_id: Number = Number(req.params.match_id);
+  const matches =  await pool.query(`SELECT * FROM ping_pong_sport.matches WHERE match_id = ${match_id}`);
+  return res.json(matches.rows)  
+});
+
+app.get("/sets/:match_id", async (req: Request, res: Response) => {
+  const match_id = req.params.match_id;
+  const matches =  await pool.query(`SELECT * FROM ping_pong_sport.sets WHERE match_id = ${match_id}`);
   return res.json(matches.rows)  
 });
 
