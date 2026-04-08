@@ -18,12 +18,13 @@ create table ping_pong_sport.matches (
 
 -- 2. Creamos el "hijo" que depende del padre
 CREATE TABLE ping_pong_sport.sets (
-    set_id SERIAL PRIMARY KEY,
-    match_id INT REFERENCES matches(match_id) ON DELETE CASCADE, -- Esta es la FK
+    set_number INT check (set_number >= 0),
+    match_id INT REFERENCES ping_pong_sport.matches(match_id) ON DELETE CASCADE,
+    PRIMARY KEY  (match_id, set_number),
     points_player_1 INT check (points_player_1 >= 0),
-    points_player_2 INT check (points_player_2 >= 0),
-    set_number INT check (set_number >= 0) -- Para saber si es el set 1, 2 o 3
+    points_player_2 INT check (points_player_2 >= 0)    
 );
+
 
 grant select, insert, update, delete on terox.usuarios to terox_admin;
 grant select, insert, update, delete on terox.usuarios_id_seq to terox_admin;
