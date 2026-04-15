@@ -7,6 +7,7 @@ import { PingPongSet } from "./types/pingPong";
 dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 const app = express();
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "..", "src/public")));
 app.set('view engine', 'ejs');
 app.set("views", path.join(__dirname, "..", "src/views"));
 
