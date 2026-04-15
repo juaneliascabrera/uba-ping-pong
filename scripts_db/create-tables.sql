@@ -24,10 +24,3 @@ CREATE TABLE ping_pong_sport.sets (
     points_player_1 INT check (points_player_1 >= 0),
     points_player_2 INT check (points_player_2 >= 0)    
 );
-
-
-grant select, insert, update, delete on terox.usuarios to terox_admin;
-grant select, insert, update, delete on terox.usuarios_id_seq to terox_admin;
-
-grant select, insert, update, delete on terox.productos to terox_admin;
-grant select, insert, update, delete on terox.productos_producto_id_seq to terox_admin;
