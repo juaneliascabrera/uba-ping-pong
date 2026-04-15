@@ -2,7 +2,8 @@ import express, { Request, Response } from "express";
 import { Pool } from "pg";
 import dotenv from "dotenv";
 import path from "path";
-import { appendFileSync } from "fs";
+import { PingPongSet } from "./types/pingPong";
+
 dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 const app = express();
 app.use(express.json());
@@ -11,6 +12,22 @@ app.set("views", path.join(__dirname, "..", "src/views"));
 
 const PORT = 3000;
 const schema = "ping_pong_sport"
+
+function match_winner_by_sets(player_1_id: number, player_2_id: number, sets: PingPongSet[]): number {
+	let setsWonByP1 = 0;
+	let setsWonByP2 = 0;
+
+	for (const set of sets) {
+		if (set.points_p1 > set.points_p2) {
+			setsWonByP1++;
+		}
+		else {
+			setsWonByP2++;
+		}
+	}
+
+	return setsWonByP1 > setsWonByP2 ? player_1_id : player_2_id;
+}
 
 // Env Variables
 const pool = new Pool({
@@ -26,19 +43,12 @@ pool.on("connect", () => {
 });
 
 
-
-app.get("/matches", (_: Request, res: Response) => {
-	return res.render("matches");
-})
-
-// Eliminás el endpoint suelto de POST /sets/:match_id porque no lo necesitás.
-// Y construís un POST /matches súper potente:
-
+// MATCHES POST
 app.post("/matches", async (req: Request, res: Response) => {
 	const { player_1_id, player_2_id, sets } = req.body;
 
 	// Hardcoded.
-	const winner_id = player_1_id;
+	const winner_id = match_winner_by_sets(player_1_id, player_2_id, sets);
 	const client = await pool.connect();
 
 	try {
@@ -74,7 +84,10 @@ app.post("/matches", async (req: Request, res: Response) => {
 		client.release();
 	}
 });
-
+// MATCHES GET
+app.get("/matches", (_: Request, res: Response) => {
+	return res.render("matches");
+})
 
 app.get("/sets/:match_id", async (req: Request, res: Response) => {
 	const match_id = req.params.match_id;
