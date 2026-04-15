@@ -10,8 +10,9 @@ app.set('view engine', 'ejs');
 app.set("views", path.join(__dirname, "..", "src/views"));
 
 const PORT = 3000;
+const schema = "ping_pong_sport"
 
-// Exportar variables de entorno ejecuntado el .sh o .bat
+// Env Variables
 const pool = new Pool({
 	user: process.env.PGUSER,
 	host: process.env.PGHOST,
@@ -24,27 +25,56 @@ pool.on("connect", () => {
 	console.log("Connected to Ping Pong");
 });
 
-const schema = "ping_pong_sport"
+
 
 app.get("/matches", (_: Request, res: Response) => {
 	return res.render("matches");
 })
 
+// Eliminás el endpoint suelto de POST /sets/:match_id porque no lo necesitás.
+// Y construís un POST /matches súper potente:
 
 app.post("/matches", async (req: Request, res: Response) => {
-	const text = `INSERT INTO ${schema}.matches (player_1, player_2) VALUES ($1, $2)`;
-	const player_1: string = req.body.player_1;
-	const player_2: string = req.body.player_2;
-	const values = [player_1, player_2];
+	const { player_1_id, player_2_id, sets } = req.body;
 
-	await pool.query(text, values);
-	return res.status(201).json({ message: "todo zarpado" });
+	// Hardcoded.
+	const winner_id = player_1_id;
+	const client = await pool.connect();
+
+	try {
+		await client.query('BEGIN');
+		const insert_match_id = `
+			INSERT INTO ping_pong_sport.matches (player_1_id, player_2_id, winner_id) 
+			VALUES ($1, $2, $3) RETURNING match_id
+		`;
+		const match_result = await client.query(insert_match_id, [player_1_id, player_2_id, winner_id]);
+		const new_match_id = match_result.rows[0].match_id;
+
+		let set_number = 1;
+		for (const set of sets) {
+			const insert_set_query = `
+				INSERT INTO ping_pong_sport.sets (set_number, match_id, points_player_1, points_player_2)
+				VALUES ($1, $2, $3, $4)
+			`;
+			await client.query(insert_set_query, [set_number, new_match_id, set.points_p1, set.points_p2]);
+			set_number++;
+		}
+
+		// Commit
+		await client.query('COMMIT');
+		res.status(201).json({ message: "Match and sets saved succesfully", match_id: new_match_id });
+
+	} catch (error) {
+		// Rollback everything
+		await client.query('ROLLBACK');
+		console.error("Abort:", error);
+		res.status(500).json({ error: "Can't save match" });
+	} finally {
+		// Free pool
+		client.release();
+	}
 });
-/*app.get("/matches/:match_id", async (req: Request, res: Response) => {
-  const match_id: Number = Number(req.params.match_id);
-  const matches =  await pool.query(`SELECT * FROM ping_pong_sport.matches WHERE match_id = ${match_id}`);
-  return res.json(matches.rows)  
-});*/
+
 
 app.get("/sets/:match_id", async (req: Request, res: Response) => {
 	const match_id = req.params.match_id;
