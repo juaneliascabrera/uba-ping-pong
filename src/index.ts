@@ -3,7 +3,7 @@ import { Pool } from "pg";
 import dotenv from "dotenv";
 import path from "path";
 import { appendFileSync } from "fs";
-dotenv.config({path: path.resolve(__dirname, "..", ".env")});
+dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 const app = express();
 app.use(express.json());
 app.set('view engine', 'ejs');
@@ -30,13 +30,15 @@ app.get("/matches", (_: Request, res: Response) => {
 	return res.render("matches");
 })
 
+
 app.post("/matches", async (req: Request, res: Response) => {
+	const text = `INSERT INTO ${schema}.matches (player_1, player_2) VALUES ($1, $2)`;
 	const player_1: string = req.body.player_1;
 	const player_2: string = req.body.player_2;
-	const columns = 'player_1, player_2';	
+	const values = [player_1, player_2];
 
-	await pool.query(`INSERT INTO ${schema}.matches (${columns}) VALUES ('${player_1}', '${player_2}')`);
-	return res.status(201).json({message: "todo zarpado"});
+	await pool.query(text, values);
+	return res.status(201).json({ message: "todo zarpado" });
 });
 /*app.get("/matches/:match_id", async (req: Request, res: Response) => {
   const match_id: Number = Number(req.params.match_id);
@@ -45,11 +47,11 @@ app.post("/matches", async (req: Request, res: Response) => {
 });*/
 
 app.get("/sets/:match_id", async (req: Request, res: Response) => {
-  const match_id = req.params.match_id;
-  const matches =  await pool.query(`SELECT * FROM ping_pong_sport.sets WHERE match_id = ${match_id}`);
-  return res.json(matches.rows)  
+	const match_id = req.params.match_id;
+	const matches = await pool.query(`SELECT * FROM ping_pong_sport.sets WHERE match_id = ${match_id}`);
+	return res.json(matches.rows)
 });
 
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+	console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
