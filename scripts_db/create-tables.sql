@@ -18,7 +18,7 @@ create table ping_pong_sport.matches (
 
 -- 2. Creamos el "hijo" que depende del padre
 CREATE TABLE ping_pong_sport.sets (
-    set_number INT check (set_number >= 0),
+    set_number INT check (set_number > 0),
     match_id INT REFERENCES ping_pong_sport.matches(match_id) ON DELETE CASCADE,
     PRIMARY KEY  (match_id, set_number),
     points_player_1 INT check (points_player_1 >= 0),
