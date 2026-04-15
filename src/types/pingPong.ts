@@ -1,4 +1,4 @@
 export type PingPongSet = {
-    points_p1: number;
-    points_p2: number;
+    points_player_1: number;
+    points_player_2: number;
 }

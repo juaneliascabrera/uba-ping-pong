@@ -16,12 +16,28 @@ async function addMatch(url: string) {
         event.preventDefault(); //para que no recargue la página
 
         const data: { [key: string]: string; } = formToDict(form);
+        let set_number = 1;
+        let current_set_p1 = `set_${set_number}_p1`
+        let current_set_p2 = `set_${set_number}_p2`
+
+        const sets = [];
+        
+        for(set_number; set_number < 4; set_number++){
+            sets.push({points_player_1: data[current_set_p1], points_player_2: data[current_set_p2]})
+        }
+        const formatted_data = {
+            player_1_id: data.player_1_id,
+            player_2_id: data.player_2_id,
+            sets: sets
+        }
+        console.log(formatted_data);
         console.log("MATCH:", data);
         try {
             const response = await fetch(url, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
+                body: JSON.stringify(formatted_data)
+                
             });
 
             if (response.ok) {

@@ -17,15 +17,20 @@ const schema = "ping_pong_sport"
 function match_winner_by_sets(player_1_id: number, player_2_id: number, sets: PingPongSet[]): number {
 	let setsWonByP1 = 0;
 	let setsWonByP2 = 0;
-
+	console.log(sets);
 	for (const set of sets) {
-		if (set.points_p1 > set.points_p2) {
+		
+		console.log(set.points_player_1);
+		console.log(set.points_player_2);
+		if (Number(set.points_player_1) > Number(set.points_player_2)) {
 			setsWonByP1++;
 		}
 		else {
 			setsWonByP2++;
 		}
 	}
+	console.log(setsWonByP1);
+	console.log(setsWonByP2);
 	return setsWonByP1 > setsWonByP2 ? player_1_id : player_2_id;
 }
 
@@ -48,6 +53,7 @@ app.post("/matches", async (req: Request, res: Response) => {
 	const { player_1_id, player_2_id, sets } = req.body;
 
 	// Hardcoded.
+	
 	const winner_id = match_winner_by_sets(player_1_id, player_2_id, sets);
 	const client = await pool.connect();
 
@@ -66,7 +72,7 @@ app.post("/matches", async (req: Request, res: Response) => {
 				INSERT INTO ping_pong_sport.sets (set_number, match_id, points_player_1, points_player_2)
 				VALUES ($1, $2, $3, $4)
 			`;
-			await client.query(insert_set_query, [set_number, new_match_id, set.points_p1, set.points_p2]);
+			await client.query(insert_set_query, [set_number, new_match_id, set.points_player_1, set.points_player_2]);
 			set_number++;
 		}
 

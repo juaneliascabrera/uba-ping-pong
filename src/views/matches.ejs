@@ -3,19 +3,38 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Nuevo Partido Ping Pong</title>
+  <title>New Ping Pong Name</title>
 </head>
 
 <body>
-  <h1>Registrar un nuevo partido</h1>
+  <h1>Register a new matches</h1>
   <form id=load_match action="/matches" method="POST">
-    <label for="player_1_id">Jugador 1:</label>
+    
+    <label for="player_1_id">Player 1:</label>
     <input type="text" id="player_1_id" name="player_1_id" required><br><br>
 
-    <label for="player_2_id">Jugador 2:</label>
+    <label for="player_2_id">Player 2:</label>
     <input type="text" id="player_2_id" name="player_2_id" required><br><br>
 
-    <button type="submit">Guardar partido</button>
+    <label for="set_1_p1">Set 1 P1:</label>
+    <input type="number" id="set_1_p1" name="set_1_p1" required><br><br>
+
+    <label for="set_1_p2">Set 1 P2:</label>
+    <input type="number" id="set_1_p2" name="set_1_p2" required><br><br>
+
+    <label for="set_2_p1">Set 2 P1:</label>
+    <input type="number" id="set_2_p1" name="set_2_p1" required><br><br>
+
+    <label for="set_2_p2">Set 2 P2:</label>
+    <input type="number" id="set_2_p2" name="set_2_p2" required><br><br>
+
+    <label for="set_3_p1">Set 3 P1:</label>
+    <input type="number" id="set_3_p1" name="set_3_p1" required><br><br>
+
+    <label for="set_3_p2">Set 3 P1:</label>
+    <input type="number" id="set_3_p2" name="set_3_p2" required><br><br>
+
+    <button type="submit">Save match</button>
   </form>
 </body>
 <script src="/scripts/load_match.js" type="module"></script>
