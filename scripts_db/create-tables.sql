@@ -6,17 +6,23 @@ set role to ping_pong_owner;
 create schema ping_pong_sport;
 grant usage on schema ping_pong_sport to ping_pong_admin;
 
--- Tabla de Productos
-create table ping_pong_sport.matches (
-    match_id serial primary key,
-    player_1 varchar(100) not null,
-    player_2 varchar(100) not null,
-    played_at timestamptz default current_timestamp
---    comentarios text,
---    usuario_id REFERENCES terox.usuarios(id) -- FK a usuarios, para relacionar un producto/post con su publicador
+-- Users
+CREATE TABLE ping_pong_sport.users(
+    user_id serial primary key,
+    username varchar(50) unique not null,
+    created_at timestamptz default current_timestamp
 );
 
--- 2. Creamos el "hijo" que depende del padre
+-- Matches
+create table ping_pong_sport.matches (
+    match_id serial primary key,
+    player_1_id INT REFERENCES ping_pong_sport.users(user_id) not null,
+    player_2_id INT REFERENCES ping_pong_sport.users(user_id) not null,
+    winner_id INT REFERENCES ping_pong_sport.users(user_id) not null,
+    played_at timestamptz default current_timestamp
+);
+
+-- Sets (depends of matches)
 CREATE TABLE ping_pong_sport.sets (
     set_number INT check (set_number > 0),
     match_id INT REFERENCES ping_pong_sport.matches(match_id) ON DELETE CASCADE,
