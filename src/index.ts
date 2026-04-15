@@ -26,7 +26,6 @@ function match_winner_by_sets(player_1_id: number, player_2_id: number, sets: Pi
 			setsWonByP2++;
 		}
 	}
-
 	return setsWonByP1 > setsWonByP2 ? player_1_id : player_2_id;
 }
 
