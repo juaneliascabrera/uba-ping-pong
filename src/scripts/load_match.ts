@@ -26,8 +26,8 @@ async function addMatch(url: string) {
             sets.push({points_player_1: data[current_set_p1], points_player_2: data[current_set_p2]})
         }
         const formatted_data = {
-            player_1_id: data.player_1_id,
-            player_2_id: data.player_2_id,
+            player_1_username: data.player_1_username,
+            player_2_username: data.player_2_username,
             sets: sets
         }
         console.log(formatted_data);

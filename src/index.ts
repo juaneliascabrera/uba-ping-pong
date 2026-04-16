@@ -14,7 +14,7 @@ app.set("views", path.join(__dirname, "..", "src/views"));
 const PORT = 3000;
 const schema = "ping_pong_sport"
 
-function match_winner_by_sets(player_1_id: number, player_2_id: number, sets: PingPongSet[]): number {
+function match_winner_by_sets(player_1_username: string, player_2_username: string, sets: PingPongSet[]): string {
 	let setsWonByP1 = 0;
 	let setsWonByP2 = 0;
 	console.log(sets);
@@ -31,7 +31,7 @@ function match_winner_by_sets(player_1_id: number, player_2_id: number, sets: Pi
 	}
 	console.log(setsWonByP1);
 	console.log(setsWonByP2);
-	return setsWonByP1 > setsWonByP2 ? player_1_id : player_2_id;
+	return setsWonByP1 > setsWonByP2 ? player_1_username : player_2_username;
 }
 
 // Env Variables
@@ -50,20 +50,20 @@ pool.on("connect", () => {
 
 // MATCHES POST
 app.post("/matches", async (req: Request, res: Response) => {
-	const { player_1_id, player_2_id, sets } = req.body;
+	const { player_1_username, player_2_username, sets } = req.body;
 
 	// Hardcoded.
 	
-	const winner_id = match_winner_by_sets(player_1_id, player_2_id, sets);
+	const winner_username = match_winner_by_sets(player_1_username, player_2_username, sets);
 	const client = await pool.connect();
 
 	try {
 		await client.query('BEGIN');
 		const insert_match_id = `
-			INSERT INTO ping_pong_sport.matches (player_1_id, player_2_id, winner_id) 
+			INSERT INTO ping_pong_sport.matches (player_1_username, player_2_username, winner_username) 
 			VALUES ($1, $2, $3) RETURNING match_id
 		`;
-		const match_result = await client.query(insert_match_id, [player_1_id, player_2_id, winner_id]);
+		const match_result = await client.query(insert_match_id, [player_1_username, player_2_username, winner_username]);
 		const new_match_id = match_result.rows[0].match_id;
 
 		let set_number = 1;

@@ -8,17 +8,16 @@ grant usage on schema ping_pong_sport to ping_pong_admin;
 
 -- Users
 CREATE TABLE ping_pong_sport.users(
-    user_id serial primary key,
-    username varchar(50) unique not null,
+    username varchar(50) primary key CHECK (username NOT LIKE '% %'),
     created_at timestamptz default current_timestamp
 );
 
 -- Matches
 create table ping_pong_sport.matches (
     match_id serial primary key,
-    player_1_id INT REFERENCES ping_pong_sport.users(user_id) not null,
-    player_2_id INT REFERENCES ping_pong_sport.users(user_id) not null,
-    winner_id INT REFERENCES ping_pong_sport.users(user_id) not null,
+    player_1_username varchar(50) REFERENCES ping_pong_sport.users(username) not null,
+    player_2_username varchar(50) REFERENCES ping_pong_sport.users(username) not null,
+    winner_username varchar(50) REFERENCES ping_pong_sport.users(username) not null,
     played_at timestamptz default current_timestamp
 );
 
@@ -30,3 +29,8 @@ CREATE TABLE ping_pong_sport.sets (
     points_player_1 INT check (points_player_1 >= 0),
     points_player_2 INT check (points_player_2 >= 0)    
 );
+
+/* Alters */
+/*ALTER TABLE ping_pong_sport.users DROP username
+ALTER TABLE ping_pong_sport.users DROP user_id
+ALTER TABLE ping_pong_sport.users ADD username_pk PRIMARY KEY    username*/
