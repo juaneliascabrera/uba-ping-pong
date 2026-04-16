@@ -7,7 +7,7 @@
 </head>
 
 <body>
-  <h1>Register a new matches</h1>
+  <h1>Register a new match</h1>
   <form id=load_match action="/matches" method="POST">
 
     <label for="player_1_username">Player 1 (Username):</label>
@@ -17,6 +17,9 @@
     <label for="player_2_username">Player 2 (Username):</label>
     <input type="text" id="player_2_username" name="player_2_username" title="No debe contener espacios"
       required><br><br>
+
+    <label for="set_amount">Best of:</label>
+    <input type="number" id="set_amount" name="set_amount" required><br><br>
 
     <label for="set_1_p1">Set 1 P1:</label>
     <input type="number" id="set_1_p1" name="set_1_p1" required><br><br>
