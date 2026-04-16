@@ -8,19 +8,58 @@ function formToDict(form: HTMLFormElement) {
     return data;
 }
 
-function validSets(sets: any[]) {
-    // First we'll ensure that sets length is odd.
-    if (sets.length % 2 != 1) {
+type SetScore = {
+    points_player_1: number;
+    points_player_2: number;
+};
+
+function validSets(best_of: number, sets: SetScore[]): boolean {
+    if (!Number.isInteger(best_of) || best_of <= 0 || best_of % 2 === 0) {
         return false;
     }
-    //Now we'll ensure every set has been won by 2 points of difference or more.
-    for (let set of sets) {
-        if (set['player_1_points'] - set['player_2_points'] < 2) {
+
+    const setsToWin = Math.ceil(best_of / 2);
+
+    if (sets.length === 0 || sets.length > best_of) {
+        return false;
+    }
+
+    let setsWonByP1 = 0;
+    let setsWonByP2 = 0;
+
+    for (let i = 0; i < sets.length; i++) {
+        const set = sets[i];
+
+        const p1 = set.points_player_1;
+        const p2 = set.points_player_2;
+
+
+        if (
+            !Number.isInteger(p1) ||
+            !Number.isInteger(p2) ||
+            p1 < 0 ||
+            p2 < 0
+        ) {
+            return false;
+        }
+        const diff = Math.abs(p1 - p2);
+
+        if (diff < 2) {
             return false;
         }
 
-    }
+        if (p1 > p2) {
+            setsWonByP1++;
+        } else {
+            setsWonByP2++;
+        }
 
+        // If somebody won, then we need to be in the last set.
+        if (setsWonByP1 === setsToWin || setsWonByP2 === setsToWin) {
+            return i === sets.length - 1;
+        }
+    }
+    return false;
 }
 
 async function addMatch(url: string) {
@@ -30,18 +69,17 @@ async function addMatch(url: string) {
         event.preventDefault(); //para que no recargue la página
 
         const data: { [key: string]: string; } = formToDict(form);
-        let set_number = 1;
-
+        const best_of = Number(data['best_of']);
         const sets = [];
 
-        for (set_number = 1; set_number <= 3; set_number++) {
+        for (let set_number = 1; set_number <= 3; set_number++) {
             let current_set_p1 = `set_${set_number}_p1`;
             let current_set_p2 = `set_${set_number}_p2`;
             if (data[current_set_p1] && data[current_set_p2]) {
                 sets.push({ points_player_1: Number(data[current_set_p1]), points_player_2: Number(data[current_set_p2]) });
             }
         }
-        if (!validSets(sets)) {
+        if (!validSets(best_of, sets)) {
             alert('Invalid sets')
             return;
         }
