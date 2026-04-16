@@ -13,14 +13,8 @@ type SetScore = {
     points_player_2: number;
 };
 
-function validSets(best_of: number, sets: SetScore[]): boolean {
-    if (!Number.isInteger(best_of) || best_of <= 0 || best_of % 2 === 0) {
-        return false;
-    }
-
-    const setsToWin = Math.ceil(best_of / 2);
-
-    if (sets.length === 0 || sets.length > best_of) {
+function validSets(sets: SetScore[]): boolean {
+    if (sets.length === 0) {
         return false;
     }
 
@@ -53,13 +47,54 @@ function validSets(best_of: number, sets: SetScore[]): boolean {
         } else {
             setsWonByP2++;
         }
+    }
 
+    const setsToWin = Math.max(setsWonByP1, setsWonByP2);
+
+    let currentP1 = 0;
+    let currentP2 = 0;
+    for (let i = 0; i < sets.length; i++) {
+        const p1 = sets[i].points_player_1;
+        const p2 = sets[i].points_player_2;
+        
+        if (p1 > p2) {
+            currentP1++;
+        } else {
+            currentP2++;
+        }
+        
         // If somebody won, then we need to be in the last set.
-        if (setsWonByP1 === setsToWin || setsWonByP2 === setsToWin) {
+        if (currentP1 === setsToWin || currentP2 === setsToWin) {
             return i === sets.length - 1;
         }
     }
     return false;
+}
+
+function setupDynamicSets() {
+    const addSetBtn = document.getElementById('add_set_btn');
+    if (!addSetBtn) return;
+
+    addSetBtn.addEventListener('click', () => {
+        const container = document.getElementById('sets_container');
+        if (!container) return;
+        
+        const currentSetCount = container.children.length + 1;
+        
+        const newSetDiv = document.createElement('div');
+        newSetDiv.className = 'set-inputs';
+        newSetDiv.id = `set_${currentSetCount}_inputs`;
+        
+        newSetDiv.innerHTML = `
+        <label for="set_${currentSetCount}_p1">Set ${currentSetCount} P1:</label>
+        <input type="number" id="set_${currentSetCount}_p1" name="set_${currentSetCount}_p1" required><br><br>
+
+        <label for="set_${currentSetCount}_p2">Set ${currentSetCount} P2:</label>
+        <input type="number" id="set_${currentSetCount}_p2" name="set_${currentSetCount}_p2" required><br><br>
+        `;
+        
+        container.appendChild(newSetDiv);
+    });
 }
 
 async function addMatch(url: string) {
@@ -69,17 +104,20 @@ async function addMatch(url: string) {
         event.preventDefault(); //para que no recargue la página
 
         const data: { [key: string]: string; } = formToDict(form);
-        const best_of = Number(data['best_of']);
         const sets = [];
 
-        for (let set_number = 1; set_number <= 3; set_number++) {
+        let set_number = 1;
+        while (true) {
             let current_set_p1 = `set_${set_number}_p1`;
             let current_set_p2 = `set_${set_number}_p2`;
-            if (data[current_set_p1] && data[current_set_p2]) {
+            if (data[current_set_p1] !== undefined && data[current_set_p2] !== undefined) {
                 sets.push({ points_player_1: Number(data[current_set_p1]), points_player_2: Number(data[current_set_p2]) });
+                set_number++;
+            } else {
+                break;
             }
         }
-        if (!validSets(best_of, sets)) {
+        if (!validSets(sets)) {
             alert('Invalid sets')
             return;
         }
@@ -101,6 +139,12 @@ async function addMatch(url: string) {
             if (response.ok) {
                 alert("Match added succesfully");
                 form.reset();
+                const container = document.getElementById('sets_container');
+                if (container) {
+                    while (container.children.length > 1) {
+                        container.removeChild(container.lastChild as Node);
+                    }
+                }
             } else {
                 alert("It did not add match");
             }
@@ -111,4 +155,5 @@ async function addMatch(url: string) {
     });
 }
 
+setupDynamicSets();
 addMatch("/matches");

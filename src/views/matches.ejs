@@ -18,26 +18,19 @@
     <input type="text" id="player_2_username" name="player_2_username" title="No debe contener espacios"
       required><br><br>
 
-    <label for="best_of">Best of:</label>
-    <input type="number" id="best_of" name="best_of" required><br><br>
 
-    <label for="set_1_p1">Set 1 P1:</label>
-    <input type="number" id="set_1_p1" name="set_1_p1" required><br><br>
 
-    <label for="set_1_p2">Set 1 P2:</label>
-    <input type="number" id="set_1_p2" name="set_1_p2" required><br><br>
+    <div id="sets_container">
+      <div class="set-inputs" id="set_1_inputs">
+        <label for="set_1_p1">Set 1 P1:</label>
+        <input type="number" id="set_1_p1" name="set_1_p1" required><br><br>
 
-    <label for="set_2_p1">Set 2 P1:</label>
-    <input type="number" id="set_2_p1" name="set_2_p1" required><br><br>
+        <label for="set_1_p2">Set 1 P2:</label>
+        <input type="number" id="set_1_p2" name="set_1_p2" required><br><br>
+      </div>
+    </div>
 
-    <label for="set_2_p2">Set 2 P2:</label>
-    <input type="number" id="set_2_p2" name="set_2_p2" required><br><br>
-
-    <label for="set_3_p1">Set 3 P1:</label>
-    <input type="number" id="set_3_p1" name="set_3_p1" required><br><br>
-
-    <label for="set_3_p2">Set 3 P2:</label>
-    <input type="number" id="set_3_p2" name="set_3_p2" required><br><br>
+    <button type="button" id="add_set_btn">Add another set</button><br><br>
 
     <button type="submit">Save match</button>
   </form>
