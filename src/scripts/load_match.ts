@@ -17,13 +17,15 @@ async function addMatch(url: string) {
 
         const data: { [key: string]: string; } = formToDict(form);
         let set_number = 1;
-        let current_set_p1 = `set_${set_number}_p1`
-        let current_set_p2 = `set_${set_number}_p2`
 
         const sets = [];
         
-        for(set_number; set_number < 4; set_number++){
-            sets.push({points_player_1: data[current_set_p1], points_player_2: data[current_set_p2]})
+        for(set_number = 1; set_number <= 3; set_number++){
+            let current_set_p1 = `set_${set_number}_p1`;
+            let current_set_p2 = `set_${set_number}_p2`;
+            if (data[current_set_p1] && data[current_set_p2]) {
+                sets.push({ points_player_1: Number(data[current_set_p1]), points_player_2: Number(data[current_set_p2]) });
+            }
         }
         const formatted_data = {
             player_1_username: data.player_1_username,

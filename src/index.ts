@@ -7,7 +7,8 @@ import { PingPongSet } from "./types/pingPong";
 dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 const app = express();
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "..", "dist", "public")));
 app.set('view engine', 'ejs');
 app.set("views", path.join(__dirname, "..", "src/views"));
 
@@ -17,11 +18,9 @@ const schema = "ping_pong_sport"
 function match_winner_by_sets(player_1_username: string, player_2_username: string, sets: PingPongSet[]): string {
 	let setsWonByP1 = 0;
 	let setsWonByP2 = 0;
-	console.log(sets);
+
 	for (const set of sets) {
-		
-		console.log(set.points_player_1);
-		console.log(set.points_player_2);
+
 		if (Number(set.points_player_1) > Number(set.points_player_2)) {
 			setsWonByP1++;
 		}
@@ -29,8 +28,6 @@ function match_winner_by_sets(player_1_username: string, player_2_username: stri
 			setsWonByP2++;
 		}
 	}
-	console.log(setsWonByP1);
-	console.log(setsWonByP2);
 	return setsWonByP1 > setsWonByP2 ? player_1_username : player_2_username;
 }
 
@@ -44,7 +41,7 @@ const pool = new Pool({
 });
 
 pool.on("connect", () => {
-	console.log("Connected to Ping Pong");
+	console.log("Connected to Ping Pong Database");
 });
 
 
@@ -53,14 +50,14 @@ app.post("/matches", async (req: Request, res: Response) => {
 	const { player_1_username, player_2_username, sets } = req.body;
 
 	// Hardcoded.
-	
+
 	const winner_username = match_winner_by_sets(player_1_username, player_2_username, sets);
 	const client = await pool.connect();
 
 	try {
 		await client.query('BEGIN');
 		const insert_match_id = `
-			INSERT INTO ping_pong_sport.matches (player_1_username, player_2_username, winner_username) 
+			INSERT INTO ${schema}.matches (player_1_username, player_2_username, winner_username) 
 			VALUES ($1, $2, $3) RETURNING match_id
 		`;
 		const match_result = await client.query(insert_match_id, [player_1_username, player_2_username, winner_username]);
@@ -69,7 +66,7 @@ app.post("/matches", async (req: Request, res: Response) => {
 		let set_number = 1;
 		for (const set of sets) {
 			const insert_set_query = `
-				INSERT INTO ping_pong_sport.sets (set_number, match_id, points_player_1, points_player_2)
+				INSERT INTO ${schema}.sets (set_number, match_id, points_player_1, points_player_2)
 				VALUES ($1, $2, $3, $4)
 			`;
 			await client.query(insert_set_query, [set_number, new_match_id, set.points_player_1, set.points_player_2]);
@@ -97,7 +94,7 @@ app.get("/matches", (_: Request, res: Response) => {
 
 app.get("/sets/:match_id", async (req: Request, res: Response) => {
 	const match_id = req.params.match_id;
-	const matches = await pool.query(`SELECT * FROM ping_pong_sport.sets WHERE match_id = ${match_id}`);
+	const matches = await pool.query(`SELECT * FROM ${schema}.sets WHERE match_id = ${match_id}`);
 	return res.json(matches.rows)
 });
 
